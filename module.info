@@ -1,0 +1,5 @@
+Name: Nomad
+Version: 1.0.0
+Depends: director
+Description: Nomad module for Icinga Web 2
+ This module provides a Nomad import source for Icinga Director
