@@ -22,7 +22,21 @@ class ImportSource extends ImportSourceHook
     {
         $sf = new ServiceFactory(array('base_uri' => $this->getSetting('consul_url')));
         $agent = $sf->get('catalog');
-        return json_decode($agent->nodes()->getBody());
+
+        $nomadClients = json_decode($agent->service($this->getSetting('nomad_client_service'))->getBody());
+        $nomadServices = [];
+        foreach ($nomadClients as $client) {
+            $node = json_decode($agent->node($client->Node)->getBody(), true);
+            $nomadServices = array_merge(
+                $nomadServices,
+                array_filter(
+                    $node['Services'],
+                    "getNomadTasks",
+                    ARRAY_FILTER_USE_KEY
+                )
+            );
+        }
+        return $nomadServices;
     }
 
     public function listColumns()
@@ -50,6 +64,20 @@ class ImportSource extends ImportSourceHook
             'required'     => true,
             'value'        => 'http://127.0.0.1:8500',
         ));
+        $form->addElement('text', 'nomad_client_service', array(
+            'label'        => 'Consul Nomad Client Service',
+            'required'     => true,
+            'value'        => 'nomad-client',
+        ));
         return;
+    }
+
+    /**
+     * @param $key
+     * @return false|int
+     */
+    protected function getNomadTasks($key)
+    {
+        return preg_match("#^_nomad-task(.*)$#i", $key);
     }
 }

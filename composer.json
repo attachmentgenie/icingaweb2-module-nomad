@@ -18,7 +18,8 @@
         "sort-packages": true
     },
     "require": {
-        "sensiolabs/consul-php-sdk": "^3.1"
+        "sensiolabs/consul-php-sdk": "^3.1",
+        "ext-json": "*"
     },
     "require-dev": {
         "jakub-onderka/php-parallel-lint": "^1.0",
