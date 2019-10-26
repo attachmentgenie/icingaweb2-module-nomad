@@ -49,7 +49,7 @@ class ImportSource extends ImportSourceHook
      */
     public static function getDefaultKeyColumnName()
     {
-        return 'Node';
+        return 'ID';
     }
 
     /**
