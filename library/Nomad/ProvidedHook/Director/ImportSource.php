@@ -31,7 +31,7 @@ class ImportSource extends ImportSourceHook
                 $nomadServices,
                 array_filter(
                     $node['Services'],
-                    "getNomadTasks",
+                    array(__CLASS__, 'getNomadTasks'),
                     ARRAY_FILTER_USE_KEY
                 )
             );
@@ -76,7 +76,7 @@ class ImportSource extends ImportSourceHook
      * @param $key
      * @return false|int
      */
-    protected function getNomadTasks($key)
+    protected static function getNomadTasks($key)
     {
         return preg_match("#^_nomad-task(.*)$#i", $key);
     }
