@@ -36,7 +36,12 @@ class ImportSource extends ImportSourceHook
                 )
             );
         }
-        return $nomadServices;
+
+        $units = [];
+        foreach ($nomadServices as $unit) {
+            $units[] = (object) $unit;
+        }
+        return $units;
     }
 
     public function listColumns()

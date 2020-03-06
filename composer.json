@@ -7,7 +7,7 @@
         }
     ],
     "type": "library",
-    "description": "Icinga Web 2 - Director Syncsource for Consul",
+    "description": "Icinga Web 2 - Director Syncsource for Nomad",
     "homepage": "https://github.com/attachmentgenie/icingaweb2-module-nomad",
     "support": {
         "issues": "https://github.com/attachmentgenie/icingaweb2-module-nomad/issues"
