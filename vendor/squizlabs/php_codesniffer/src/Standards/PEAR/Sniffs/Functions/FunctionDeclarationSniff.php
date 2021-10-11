@@ -9,11 +9,11 @@
 
 namespace PHP_CodeSniffer\Standards\PEAR\Sniffs\Functions;
 
-use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Files\File;
-use PHP_CodeSniffer\Util\Tokens;
-use PHP_CodeSniffer\Standards\Generic\Sniffs\Functions\OpeningFunctionBraceKernighanRitchieSniff;
+use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Standards\Generic\Sniffs\Functions\OpeningFunctionBraceBsdAllmanSniff;
+use PHP_CodeSniffer\Standards\Generic\Sniffs\Functions\OpeningFunctionBraceKernighanRitchieSniff;
+use PHP_CodeSniffer\Util\Tokens;
 
 class FunctionDeclarationSniff implements Sniff
 {
@@ -456,19 +456,23 @@ class FunctionDeclarationSniff implements Sniff
                 }
 
                 // We changed lines, so this should be a whitespace indent token.
-                if ($tokens[$i]['code'] !== T_WHITESPACE) {
-                    $foundIndent = 0;
-                } else if ($tokens[$i]['line'] !== $tokens[($i + 1)]['line']) {
-                    // This is an empty line, so don't check the indent.
-                    $foundIndent = $expectedIndent;
-
+                $foundIndent = 0;
+                if ($tokens[$i]['code'] === T_WHITESPACE
+                    && $tokens[$i]['line'] !== $tokens[($i + 1)]['line']
+                ) {
                     $error = 'Blank lines are not allowed in a multi-line '.$type.' declaration';
                     $fix   = $phpcsFile->addFixableError($error, $i, 'EmptyLine');
                     if ($fix === true) {
                         $phpcsFile->fixer->replaceToken($i, '');
                     }
-                } else {
+
+                    // This is an empty line, so don't check the indent.
+                    continue;
+                } else if ($tokens[$i]['code'] === T_WHITESPACE) {
                     $foundIndent = $tokens[$i]['length'];
+                } else if ($tokens[$i]['code'] === T_DOC_COMMENT_WHITESPACE) {
+                    $foundIndent = $tokens[$i]['length'];
+                    ++$expectedIndent;
                 }
 
                 if ($expectedIndent !== $foundIndent) {
@@ -500,6 +504,13 @@ class FunctionDeclarationSniff implements Sniff
                     $i = $tokens[$i]['parenthesis_closer'];
                 }
 
+                $lastLine = $tokens[$i]['line'];
+                continue;
+            }
+
+            if ($tokens[$i]['code'] === T_ATTRIBUTE) {
+                // Skip attributes as they have their own indentation rules.
+                $i        = $tokens[$i]['attribute_closer'];
                 $lastLine = $tokens[$i]['line'];
                 continue;
             }

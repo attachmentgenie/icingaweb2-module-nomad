@@ -9,8 +9,8 @@
 
 namespace PHP_CodeSniffer\Standards\PSR12\Sniffs\Files;
 
-use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Util\Tokens;
 
 class ImportStatementSniff implements Sniff
@@ -48,6 +48,11 @@ class ImportStatementSniff implements Sniff
             return;
         }
 
+        if ($phpcsFile->hasCondition($stackPtr, Tokens::$ooScopeTokens) === true) {
+            // This rule only applies to import statements.
+            return;
+        }
+
         if ($tokens[$next]['code'] === T_STRING
             && (strtolower($tokens[$next]['content']) === 'function'
             || strtolower($tokens[$next]['content']) === 'const')
@@ -60,7 +65,11 @@ class ImportStatementSniff implements Sniff
         }
 
         $error = 'Import statements must not begin with a leading backslash';
-        $phpcsFile->addError($error, $next, 'LeadingSlash');
+        $fix   = $phpcsFile->addFixableError($error, $next, 'LeadingSlash');
+
+        if ($fix === true) {
+            $phpcsFile->fixer->replaceToken($next, '');
+        }
 
     }//end process()
 

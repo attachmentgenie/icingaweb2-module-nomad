@@ -9,8 +9,8 @@
 
 namespace PHP_CodeSniffer\Standards\Squiz\Sniffs\Commenting;
 
-use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Util\Tokens;
 
 class InlineCommentSniff implements Sniff
@@ -59,12 +59,16 @@ class InlineCommentSniff implements Sniff
         // We are only interested in inline doc block comments, which are
         // not allowed.
         if ($tokens[$stackPtr]['code'] === T_DOC_COMMENT_OPEN_TAG) {
-            $nextToken = $phpcsFile->findNext(
-                Tokens::$emptyTokens,
-                ($stackPtr + 1),
-                null,
-                true
-            );
+            $nextToken = $stackPtr;
+            do {
+                $nextToken = $phpcsFile->findNext(Tokens::$emptyTokens, ($nextToken + 1), null, true);
+                if ($tokens[$nextToken]['code'] === T_ATTRIBUTE) {
+                    $nextToken = $tokens[$nextToken]['attribute_closer'];
+                    continue;
+                }
+
+                break;
+            } while (true);
 
             $ignore = [
                 T_CLASS,
